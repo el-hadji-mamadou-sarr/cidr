@@ -66,3 +66,38 @@ so its the private and the piublic key, the private stay on the local machine an
 
 10. You want to allow only the IP 10.0.0.5 to connect to your PostgreSQL database on port 5432, and block everyone else. Write the exact ufw commands to do this
 ufw allow from 10.0.0.5 to any port 5432
+
+# Day 3
+
+1. What is the difference between a Docker image and a Docker container? Use an analogy to explain.
+the docker image is the recipe to run the app. and the docker container is the dish. so we use the recipe to make the dish.
+
+2. Explain Docker's layer caching. Why should you copy requirements.txt and run pip install BEFORE copying the rest of your code?
+the layer caching means that each line of the docker file is cached to reuse if the files does not change. 
+because the requirements.txt does not change a lot and it takes a lot of time to install packages thats why we install first the requirements before copying the rest of the file.
+
+3. What does this command do, explain every part:
+docker run -d -p 3000:8080 -e NODE_ENV=production --name api myapp:2.1
+create a container in the background on the port 3000 on the host mapped to 8000 inside the container with a environment var NODE_ENV=production. the container name is api with the image name myapp with tag 2.1
+
+4. What is the difference between CMD and ENTRYPOINT in a Dockerfile?
+cmd is the command to start the container and the entry does the same but less easy to write commands
+
+5. A container running your database gets deleted. The data is gone. How do you prevent this? What exact Docker feature do you use?
+use the volume to persist the postgres data.
+
+6. In a Docker Compose file, the web service connects to the database using hostname: db. Why does this work? What would you use instead if Docker Compose wasn't involved?
+it work because they are on the same network.
+if docker compose was not involved, we need to create a network and when starting the container provide the same network
+
+7. What is the difference between docker stop and docker kill? When would you use each?
+docker stop=> gracefull stop running containers, docker kill=>force stop running container 
+
+8. You run docker build -t myapp . and notice it's rebuilding ALL layers every time, even ones that haven't changed. What is likely wrong and how do you fix it?
+copy first the requirements or the package.json ect and install the packages first and then copy the rest of the files.
+
+9. Why should containers not run as root? What is the risk?
+so if the app is compromised, the attaker cannot run root commands thats why we create a user in the docker file to run commands.
+
+10. What is a multi-stage build? Give a real example of why you'd use one.
+Multi stage build is to build the image using different base images its to keep the final build tiny.
