@@ -101,3 +101,44 @@ so if the app is compromised, the attaker cannot run root commands thats why we 
 
 10. What is a multi-stage build? Give a real example of why you'd use one.
 Multi stage build is to build the image using different base images its to keep the final build tiny.
+
+# Day 4
+
+1. What is the difference between the Control Plane and a Worker Node? What would happen if the control plane went down but worker nodes kept running?
+The control plane is responsible of checking the health of pods, keeps states of pods, and decide in with node a new pod should run and entry for kubectl commands and kubenertes api.
+the node is responsible of running pods. so if the the control plan is down, there is no pod restart, and no pod creation also no kubectl commands
+
+2. Why do we use Deployments instead of creating raw Pods directly? What does a Deployment give you that a raw Pod doesn't?
+a doployment is a yml script that can be commited and keep it in track in the version control and everything you need for the pod can be put in the deployment.
+Creating raw pods directly with kubectl can lead to errors. 
+
+3. Pods have dynamic IPs that change every time they restart. How does a Service solve this problem? What connects a Service to the right Pods?
+The service solve it wy exposing an api that is static. 
+So the service is basically a kind of a load balancer that route the trafic to the multiple pod replicates.
+A service to a pod is linked by the label selector defined in the deployment.
+
+4. What is the difference between a ClusterIP, NodePort, and LoadBalancer Service? When would you use each?
+ClusterIP -> the service is only discoverable inside the cluster so use it for microservice communication by calling the http://service-name
+NodePort -> discoverable ouside the cluster, so you can call the service by using the node ip and port, use for dev, test
+LoadBalancer -> discoverable outside the cluster, use in prod.
+
+5. You have 5 microservices each with a LoadBalancer Service. Your cloud bill shows 5 public IP addresses. How do you reduce this to 1 public IP while still routing traffic correctly to each service?
+so we can use an ingress, and route by path to the right ClusterIP service.
+
+6. What is the difference between a ConfigMap and a Secret? Why are Kubernetes Secrets not truly secure by default, and what should you use in production?
+Config hides environment variables in plain text and Secret hides the vars in base64 and configMap are for environment thats not sensible and secrets are for sensible ones.
+so Secrets  are in base64 by default so anyone that has access to it can decode it.
+
+7. Explain the difference between a liveness probe and a readiness probe. What happens to a Pod when each one fails?
+liveness is a health check to check if that app is running, and readynes is for when the app can accept trafic.
+If liveness or readyness fails kubernetes is going to restart the pod.
+
+8. You update your Deployment image from v1 to v2. Users start reporting errors. What exact kubectl command do you run to fix this immediately?
+kubectl rollout undo deployment/my-app
+
+9. What does kubectl apply -f deployment.yaml do? How is it different from kubectl create -f deployment.yaml?
+it will create pods by applying the template written in deployment.yml.
+
+10. A pod is stuck in CrashLoopBackOff. Walk me through exactly what commands you run to diagnose and understand why.
+kubectl describe pod pod-name -> to get informations about the pod, the image that is being used, the configs
+kubectl logs -f pod-name -> to look at the logs to understand the problem

@@ -1,0 +1,29 @@
+services:
+    web:
+        build: .
+        ports:
+            - "8080:8000"
+        environment:
+            - APP_NAME=devops-training
+            - APP_VERSION=1.0.0
+        networks:
+            - app-network
+            
+        depends_on:
+            - redis
+    redis:
+        image: redis:7-alpine
+        volumes:
+            - redis-data:/data
+        ports:
+            - "6379:6379"
+        networks:
+            - app-network
+
+volumes:
+    redis-data:
+        driver: local
+
+networks:
+    app-network:
+        driver: bridge
