@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopflow-product
+  namespace: shopflow-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels: 
+        app: product-service
+    spec:
+      containers:
+        - name: shopflow-product
+          image: hashicorp/http-echo
+          args:
+            - "-text"
+            - "product-service response"
+          ports:
+            - containerPort: 5678
+          resources:
+            requests: 
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 130Mi
+      
