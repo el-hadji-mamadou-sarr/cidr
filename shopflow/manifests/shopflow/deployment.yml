@@ -23,12 +23,12 @@ spec:
             - containerPort: 5678
           envFrom:
             - configMapRef:
-                name: config
+                name: shopflow-config
           env:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: secret
+                  name: shopflow-secret
                   key: DB_PASSWORD
           resources:
             requests: 

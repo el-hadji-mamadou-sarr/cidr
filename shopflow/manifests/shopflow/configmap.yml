@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config
+  name: shopflow-config
   namespace: shopflow-dev
 data:
   APP_ENV: development
