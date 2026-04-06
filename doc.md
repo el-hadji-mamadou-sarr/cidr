@@ -176,3 +176,40 @@ You filled in the selector in the Service to match the pod's labels.
 What do you think happens if you make a typo in the selector — say you write app: product-servce instead of app: product-service? What would K8s do, and how would you debug it? What command would you run to investigate?
 - If that typo happens in the selector, when the service is reached, nothing happens because the service has no pod to load balance to. 
 I would run kubectl describe service product-service and read the full service description or run kubectl get service product-service -n shopflow-dev -o wide and look at the selector column.
+
+# day 6
+
+Question 1 — Practical:
+You have a Deployment running 3 replicas. You run kubectl delete deployment product-service -n shopflow-dev. What happens to the ReplicaSet and the Pods? Why?
+- When the deployment is deleted, the ReplicaSet is also deleted and all the pods are deleted.
+
+Question 2 — Thinking ahead:
+You now have a Deployment and a Service working together. The Deployment ensures pods stay running. The Service gives a stable DNS name. But there's still something missing for a real production app — your app needs configuration (database URLs, passwords, API keys). Where do you think those should live, and why would putting them directly in the container image or the Deployment YAML be a bad idea?
+- putting them directly in the container deployment is a bad idea because everyone that have access to the deployment or the pod can run command like describe and that will print the whole secret configuration.
+
+You applied them in this order: ConfigMap → Secret → Deployment. What do you think would happen if you applied the Deployment first, before the ConfigMap and Secret existed? Would it fail immediately, fail silently, or something else? And how would you investigate it?
+- It will fail silently and the container won't be started. to debug run the command kubectl get pod pod_name -n shopflow-dev and look at the status.
+and for more delaits describe the pod with kubectl describe pod pod_name -n shopflow-dev and look at events
+
+Your Secret is currently stored in a file on your laptop called secret.yaml. If you push your code to GitHub, that file goes with it. Why is this a serious problem, and what's your instinct for how to solve it?
+- if the secret is push to github, it will appear in hthe history.
+first thing to come to my mind is to save the secret in github secrets. and when the code is pushed, the ci will run and retreive the secret from the github secrets.
+
+Question 1:
+You have postgres-0 running with a PVC bound to it. You delete the pod with kubectl delete pod postgres-0 -n shopflow-dev. The StatefulSet restarts it. What happens to the PVC and the data inside it? Would the answer be different if you deleted the entire StatefulSet?
+The pvc will remain even if the pod restart. the answer is the same even if the entire statefulSet is deleted.
+
+Question 2 — Connecting the dots:
+Your product-service Deployment has DB_PASSWORD injected from a Secret. But it has no DB_HOST yet. What value should DB_HOST be for the product service to reach PostgreSQL? Write the exact string — think about everything you know about K8s DNS naming.
+postgres-0.postgres-service.shopflow-dev.svc.cluster.local
+
+This is your open-ended challenge: What strategy would you use to apply your manifests in the correct dependency order without having to type every file path manually? Think about it, research it, and tell me what you find. There are at least two valid approaches.
+- I used kustomization.yml and list all templates in order the other solution is to use helm and helm know how order templates for installation.
+
+When Istio injects a sidecar proxy into your pod, you end up with two containers sharing the same network namespace. The proxy intercepts ALL traffic — inbound and outbound. Think about what you know about how pods share networking. How do you think the Envoy proxy intercepts traffic that was meant for your application container, without your application knowing? What mechanism would make that possible?
+- so inside pod1 running at port 10.244.0.30:8080, the sidecar will run at 10.244.0.30:38990 for exemple. so when request is addressed to the pod1, the iptable will redirect the request to the port 38990 where the sidecar is running and then the sidecar will after tracing the request, will redirect it to the app container (port 8080).
+SO there is 2 rules in the ip table; when the request come to the pod and when the request is leaving the pod.
+
+Without running kubectl describe, how would you view logs from only the istio-proxy container inside a pod that has multiple containers? And why might you want to look at the proxy logs instead of your app logs when debugging a network connectivity issue?
+- kubectl logs -f -c istio-proxy product-service-5bcb9654f8-mckcc
+the proxy sees everything, the request that comes, and the request to the app container.
