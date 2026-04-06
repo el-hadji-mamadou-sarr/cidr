@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopflow-product
+  name: product-service
   namespace: shopflow-dev
 spec:
   replicas: 1
@@ -21,6 +21,15 @@ spec:
             - "product-service response"
           ports:
             - containerPort: 5678
+          envFrom:
+            - configMapRef:
+                name: config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: DB_PASSWORD
           resources:
             requests: 
               cpu: 50m
