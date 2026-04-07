@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: product-service
+  namespace: shopflow-dev
+spec:
+  host: product-service #service name
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 5 #CB trip after 5 consecutive errors
+      interval: 30s #check every 30s
+      baseEjectionTime: 30s #eject for 30s minimum
+      maxEjectionPercent: 100 #ejecting all pods if all failing
+  subsets:
+    - name: v1
+      labels:
+        version: v1 #pods with the label version
+    - name: v2
+      labels:
+        version: v2

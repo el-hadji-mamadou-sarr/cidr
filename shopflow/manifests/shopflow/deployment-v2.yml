@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-service
+  name: product-service-v2
   namespace: shopflow-dev
 spec:
   replicas: 1
@@ -12,14 +12,14 @@ spec:
     metadata:
       labels: 
         app: product-service
-        version: v1
+        version: v2
     spec:
       containers:
         - name: shopflow-product
           image: hashicorp/http-echo
           args:
             - "-text"
-            - "product-service response"
+            - "product-service-v2 response"
           ports:
             - containerPort: 5678
           envFrom:

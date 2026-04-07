@@ -213,3 +213,16 @@ SO there is 2 rules in the ip table; when the request come to the pod and when t
 Without running kubectl describe, how would you view logs from only the istio-proxy container inside a pod that has multiple containers? And why might you want to look at the proxy logs instead of your app logs when debugging a network connectivity issue?
 - kubectl logs -f -c istio-proxy product-service-5bcb9654f8-mckcc
 the proxy sees everything, the request that comes, and the request to the app container.
+
+What if you have one specific service that needs to receive plain text traffic — maybe a legacy service that can't use mTLS yet, or a health check endpoint called by something outside the mesh. How would you make mTLS STRICT for the whole namespace but make an exception for just one service? You don't need to write the YAML — just reason through what the configuration would need to express, and what field you'd look for in the PeerAuthentication spec.
+- By default create a PeerAuthentication for everything to use mtls and In the PeerAuthentication, it has a selector to macth labels. for services that cannot use mtls, use the label and put mode PERMISSIVE
+
+# day 7
+
+Your VirtualService routes based on weight — pure percentage split. But Istio can also route based on the actual content of the request, not just random distribution. Think about why that would be useful. What are two real scenarios where you'd want to route specific requests to v2 rather than a random 10%? What properties of a request could you use to make that decision?
+Apps that have different behavior based on user locations. user in europe could be routed to the europe version label and users in NA in the na version
+the other one is client routing. mobile apps are routed to the specific backend and web apps routed to the other backend
+
+Consider this scenario: product-service calls order-service to create an order. The call fails with a 500 error. Envoy retries automatically 3 times. All 3 retries hit the same broken code path and all return 500. Each retry takes 2 seconds. What is the total time the user waits before getting an error? Now think about this: should you always retry on 500 errors from a POST request that creates data? What could go wrong, and what would you change in the retry configuration to be safer?
+- 6 sec wait
+- Not always retry on post request to create data. It can lead to the double spending problem. Only retry on GET method to be safe
