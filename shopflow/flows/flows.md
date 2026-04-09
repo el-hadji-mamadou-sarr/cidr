@@ -79,3 +79,15 @@ istioctl proxy-config listeners <pod-name> -n shopflow-dev
 
 # See the routes
 istioctl proxy-config routes <pod-name> -n shopflow-dev
+
+Layer 1 — NodePort / LoadBalancer
+  "how does traffic get INTO the cluster nodes?"
+  This is a Kubernetes concept.
+
+  Layer 2 — Ingress / IngressController  
+  "how does HTTP traffic get routed to the right service?"
+  This is also a Kubernetes concept.
+
+  Layer 3 — Istio Gateway + VirtualService
+  "how does Istio control traffic after it enters?"
+  This is an Istio concept.
