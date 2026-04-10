@@ -77,6 +77,9 @@ istioctl proxy-config clusters <pod-name> -n shopflow-dev
 # See the listeners (what ports Envoy is watching)
 istioctl proxy-config listeners <pod-name> -n shopflow-dev
 
+# debug network
+kubectl exec -n istio-system deployment/istio-ingressgateway -- netstat -tlnp
+
 # See the routes
 istioctl proxy-config routes <pod-name> -n shopflow-dev
 

@@ -5,9 +5,15 @@ metadata:
   namespace: shopflow-dev
 spec:
   hosts:
+    - "shopflow.local"
     - product-service
+  gateways:
+    - shopflow-gateway
   http:
-    - timeout: 5s
+    - match:
+      - uri:
+          prefix: /products
+      timeout: 5s
       retries:
         attempts: 3
         perTryTimeout: 2s
