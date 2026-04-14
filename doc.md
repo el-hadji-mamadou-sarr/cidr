@@ -226,3 +226,22 @@ the other one is client routing. mobile apps are routed to the specific backend 
 Consider this scenario: product-service calls order-service to create an order. The call fails with a 500 error. Envoy retries automatically 3 times. All 3 retries hit the same broken code path and all return 500. Each retry takes 2 seconds. What is the total time the user waits before getting an error? Now think about this: should you always retry on 500 errors from a POST request that creates data? What could go wrong, and what would you change in the retry configuration to be safer?
 - 6 sec wait
 - Not always retry on post request to create data. It can lead to the double spending problem. Only retry on GET method to be safe
+
+# day 8
+
+Question 1:
+You have a Gateway accepting traffic on port 80 for shopflow.local. You want to add HTTPS on port 443. What additional things would you need — not just in the Gateway resource, but in the broader infrastructure? Think about what HTTPS requires that HTTP doesn't.
+- HTTPS requires certificates. Certificates are better stored in secrets. so we need to add 443 port with tls mode SIMPLE and add the secret cred from kubernetes secrets.
+
+Question 2:
+Your VirtualService is now bound to both the Gateway (external traffic) and internal service mesh (no gateway specified). If you set weight 90/10 on the VirtualService, does that 90/10 split apply to external traffic, internal traffic, or both? Why might you want different routing rules for external vs internal traffic?
+- The 90/10 apply to both internal and external trafic. We might want to separate because the canary deployment is better for clients that access the app and we want to make less risk while deploying a new version. While for internal trafic we might want to use a specific version of the app.
+
+Question 3 — Practical:
+Run istioctl proxy-config routes <istio-ingressgateway-pod> -n istio-system and tell me what you see. What is this output showing you, and how does it relate to the Gateway and VirtualService you just created?
+the output show 
+NAME          VHOST NAME            DOMAINS            MATCH                  VIRTUAL SERVICE
+http.8080     shopflow.local:80     shopflow.local     /products*             product-service.shopflow-dev
+              backend               *                  /healthz/ready*        
+              backend               *                  /stats/prometheus*  
+it shows that trafic that come from port http port 80 with host shopflow.local uses the virtual service product-service on shopflow-dev namespace with route match /product* on host shopflow.local
